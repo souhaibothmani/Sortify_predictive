@@ -1,7 +1,7 @@
 import requests
 
 # Define the endpoint and image file path
-url = "http://localhost:8080/uploadImage"
+url = "http://10.134.178.161/uploadImage"
 file_path = "test-images/glass.png"
 
 # Send the POST request with the image

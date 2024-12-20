@@ -8,7 +8,7 @@ original_image_path = "test-images/cardboard.jpeg"  # Path to the original image
 optimized_image_path = "test-images/optimized_cardboard.jpeg"  # Path for optimized image
 
 # Static MAC address
-mac_address = "00:1A:2B:3C:4D:5E"
+mac_address = "00:1A:2B:3C:4D:5S"
 
 
 # Function to resize and compress the image

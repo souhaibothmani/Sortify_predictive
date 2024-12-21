@@ -39,6 +39,13 @@ Results of Other Models:
 Gaussian Naive Bayes (GaussianNB): 37% accuracy
 Logistic Regression: 37% accuracy
 These models were tested but did not perform well, reinforcing the effectiveness of the ResNet50 model for this classification task.
+## Simulated Communication
+
+#### test.py File
+
+This repository includes a file named test.py that simulates the communication part of the ESP32. 
+The test.py script mimics the process of sending images to the server and receiving material type predictions,
+enabling easier testing and debugging of the backend functionality.
 ## Contributing
 
 If you want to contribute to this project, please fork the repository and submit a pull request with your changes. You can also submit issues for any bugs or enhancements you'd like to see.

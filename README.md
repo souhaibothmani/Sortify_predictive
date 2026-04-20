@@ -1,51 +1,93 @@
-# Integration_3_Team_11_Sortify_AI_model_predictive
+# Sortify — Predictive Model
 
-## Overview
+The machine-learning half of **Sortify**, an automated waste-sorting bin. A **ResNet50** image classifier reads frames captured by the ESP32-CAM and returns a material label (`cardboard`, `plastic`, `glass`, ...) that the firmware uses to drive the sorter.
 
-This project implements a waste material classification system using an ESP32 microcontroller with camera and a deep learning model to classify various types of garbage based on images. The system captures images from the camera, processes them using a Python-based model, and sends back the predicted material type to the ESP32, which then communicates with the Spring Boot web application for further processing.
-## Features
+Developed for the Integration 3 course — Team 11.
 
-ESP32 Microcontroller: Captures images and sends them to the server for classification.
-Deep Learning Model: Classifies images into various material types (e.g., cardboard, plastic, etc.).
-Spring Boot Web Application: Receives predictions from the ESP32 and displays the results.
-Material Classification: The model is trained to predict material types based on image data, providing accurate results for waste management.
-How it Works
+---
 
-Image Capture: The ESP32 captures an image of the waste using the camera.
-Image Processing: The ESP32 sends the image to the web server via an HTTP POST request. The image is passed to the Python backend that hosts the trained deep learning model.
-Model Inference: The Python backend loads the trained model (ResNet50) and processes the image to predict the material type.
-Prediction Response: The predicted material is sent back to the ESP32 as an HTTP response.
-Data Display: The prediction is displayed on the web application, where users can track the classification results.
-## Setup
+## How it fits together
 
-Requirements
-Hardware:
-ESP32-CAM
-Software:
-Python 3.x (for running the model)
-Flask (for setting up the Python server)
-Spring Boot 
-PostgreSQL (for storing classification data)
-PIL (for image resizing and compression)
-## Model Training
+```
+ESP32-CAM (Sortify_ESP32)  ──image──▶  this repo (Flask + ResNet50)  ──label──▶  ESP32-CAM
+                                             │
+                                             └──prediction──▶  Spring Boot app (Sortify_WebApp)
+                                                                      │
+                                                                      ▼
+                                                                PostgreSQL (history)
+```
 
-The model used for material classification is a ResNet50 model, which was trained on a dataset of various materials. After training, the model achieved an accuracy of 96% on the validation dataset, ensuring reliable predictions for the materials of garbage.
-Other Models Tested
-In addition to the ResNet50 model, I also experimented with Gaussian Naive Bayes (GaussianNB) and Logistic Regression models. However, these models performed significantly worse, achieving an accuracy of around 37%. The results highlight the advantages of using a deep learning approach for this classification task.
-## Model Accuracy
+- The ESP32-CAM posts a JPEG over HTTP.
+- A small Flask service resizes/compresses the image with Pillow and runs it through the trained ResNet50.
+- The predicted label is returned to the ESP32 and also pushed to the Spring Boot web app for display/history.
 
-After training, the ResNet50 model achieved an impressive 96% accuracy on the validation dataset. This makes the model highly reliable for predicting material types based on garbage images.
-Results of Other Models:
-Gaussian Naive Bayes (GaussianNB): 37% accuracy
-Logistic Regression: 37% accuracy
-These models were tested but did not perform well, reinforcing the effectiveness of the ResNet50 model for this classification task.
-## Simulated Communication
+---
 
-#### test.py File
+## Model
 
-This repository includes a file named test.py that simulates the communication part of the ESP32. 
-The test.py script mimics the process of sending images to the server and receiving material type predictions,
-enabling easier testing and debugging of the backend functionality.
-## Contributing
+A **ResNet50** convolutional network trained on a dataset of common waste materials.
 
-If you want to contribute to this project, please fork the repository and submit a pull request with your changes. You can also submit issues for any bugs or enhancements you'd like to see.
+| Model | Validation accuracy |
+|-------|--------------------:|
+| **ResNet50** (used in prod) | **96%** |
+| Gaussian Naive Bayes | 37% |
+| Logistic Regression | 37% |
+
+The two baselines are kept under `other_models/` as a reference for *why* we ended up using a deep model for this task.
+
+---
+
+## Repository layout
+
+```
+Sortify_predictive/
+├── Garbage_Classification_Pytorch.ipynb   # ResNet50 training / eval notebook
+├── Test.py                                 # Simulates the ESP32 client — sends an image and prints the label
+├── other_models/
+│   ├── Garbage_Classification_Gauss.ipynb
+│   └── Garbage_Classification_LogisticRegression.ipynb
+└── test-images/
+    ├── cardboard.jpeg
+    └── glass.jpeg
+```
+
+`Test.py` is meant as a stand-in for the ESP32-CAM during development: it POSTs one of the sample images to the Flask service and prints the response, so the backend can be iterated on without real hardware in the loop.
+
+---
+
+## Requirements
+
+- **Python 3.x**
+- **PyTorch** (for training / inference with the ResNet50 model)
+- **Flask** (serves the `/image` endpoint)
+- **Pillow** (PIL) — image resize / compression before inference
+- **Spring Boot** + **PostgreSQL** (optional, only if you also run the companion web app to store predictions)
+
+---
+
+## Running
+
+Training / exploration:
+
+```bash
+jupyter notebook Garbage_Classification_Pytorch.ipynb
+```
+
+Simulated ESP32 client against your Flask backend:
+
+```bash
+python Test.py
+```
+
+---
+
+## Related repos
+
+- [`Sortify_ESP32`](https://github.com/souhaibothmani/Sortify_ESP32) — ESP32-CAM firmware that talks to this service.
+- `Sortify_WebApp` — Spring Boot dashboard that consumes the predictions.
+
+---
+
+## Team
+
+Integration 3 — Team 11 (Sortify).
